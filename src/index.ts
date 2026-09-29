@@ -15,6 +15,7 @@ import { UndoSystem } from './systems/undo-system.js';
 import { ExportSystem } from './systems/export-system.js';
 import { HUDSystem } from './systems/hud-system.js';
 import { VoxelSculptorSpawnSystem } from './systems/sculptor-spawn-system.js';
+import { AudioSystem } from './systems/audio-system.js';
 import { PanelSystem } from './panel.js';
 
 World.create(
@@ -33,6 +34,9 @@ World.create(
   // Pop/fade feedback particles
   world.registerSystem(VoxelFeedbackSystem);
 
+  // Procedural sound effects
+  world.registerSystem(AudioSystem);
+
   // GLTF export
   world.registerSystem(ExportSystem);
 
@@ -46,17 +50,23 @@ World.create(
   world.registerSystem(PanelSystem);
 
   // ── Cross-system wiring ──────────────────────────────────────────────────
-  // Systems are singletons after registration; retrieve them for dependency
-  // injection so UndoSystem and HUDSystem can call into their peers.
   const handSystem = world.getSystem(HandSculptSystem);
+  const paletteSystem = world.getSystem(ColorPaletteSystem);
   const undoSystem = world.getSystem(UndoSystem);
   const exportSystem = world.getSystem(ExportSystem);
   const hudSystem = world.getSystem(HUDSystem);
+  const audioSystem = world.getSystem(AudioSystem);
 
   if (undoSystem != null && handSystem != null) {
     undoSystem.handSculptSystem = handSystem;
   }
   if (hudSystem != null && exportSystem != null) {
     hudSystem.exportSystem = exportSystem;
+  }
+  // Inject audio into every system that triggers sounds
+  if (audioSystem != null) {
+    if (handSystem != null) handSystem.audioSystem = audioSystem;
+    if (paletteSystem != null) paletteSystem.audioSystem = audioSystem;
+    if (undoSystem != null) undoSystem.audioSystem = audioSystem;
   }
 });

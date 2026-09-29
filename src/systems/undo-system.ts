@@ -11,6 +11,7 @@
 import { createSystem } from '@iwsdk/core';
 import { VoxelSculptor } from '../voxel-components.js';
 import type { HandSculptSystem } from './hand-sculpt-system.js';
+import type { AudioSystem } from './audio-system.js';
 
 const PINCH_COMMIT = 0.85;
 const PINCH_RELEASE = 0.55;
@@ -23,6 +24,7 @@ export class UndoSystem extends createSystem({
 
   /** Injected by src/index.ts after both systems are registered. */
   handSculptSystem: HandSculptSystem | null = null;
+  audioSystem: AudioSystem | null = null;
 
   update(delta: number): void {
     const hands = this.world.input.xr?.visualAdapters?.hand;
@@ -52,6 +54,7 @@ export class UndoSystem extends createSystem({
         if (sculptor != null) {
           this.handSculptSystem.popUndo(sculptor);
           sculptor.setValue(VoxelSculptor, 'undoDepth', this.handSculptSystem.undoStack.length);
+          this.audioSystem?.playUndo();
         }
       }
       this._glowTimer = 0;

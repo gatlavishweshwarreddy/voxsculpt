@@ -22,6 +22,7 @@ import {
   Vector3,
 } from '@iwsdk/core';
 import { VoxelBlock, VoxelSculptor, FeedbackParticle } from '../voxel-components.js';
+import type { AudioSystem } from './audio-system.js';
 import {
   gridToWorld,
   gridKey,
@@ -75,6 +76,9 @@ export class HandSculptSystem extends createSystem({
 
   get undoStack(): UndoRecord[] { return this._undoStack; }
   get grid(): Map<number, Entity> { return this._grid; }
+
+  /** Injected by src/index.ts */
+  audioSystem: AudioSystem | null = null;
 
   init(): void {
     // Nothing to pre-allocate beyond class properties
@@ -196,6 +200,7 @@ export class HandSculptSystem extends createSystem({
 
       this._grid.set(key, entity);
       this._pushUndo({ kind: 'place', gx, gy, gz, r: cr, g: cg, b: cb });
+      this.audioSystem?.playPlace();
 
       const total = sculptor.getValue(VoxelSculptor, 'totalVoxels') ?? 0;
       sculptor.setValue(VoxelSculptor, 'totalVoxels', total + 1);
@@ -242,6 +247,7 @@ export class HandSculptSystem extends createSystem({
       const pos = n.object3D!.position.clone();
       this._grid.delete(nearestKey);
       n.dispose();
+      this.audioSystem?.playDelete();
 
       const total = sculptor.getValue(VoxelSculptor, 'totalVoxels') ?? 0;
       sculptor.setValue(VoxelSculptor, 'totalVoxels', Math.max(0, total - 1));

@@ -41,5 +41,5 @@ export default defineConfig({
     esbuildOptions: { target: 'esnext' },
   },
   publicDir: 'public',
-  base: '/voxsculpt/',
+  base: process.env.NODE_ENV === 'production' ? '/voxsculpt/' : '/',
 });

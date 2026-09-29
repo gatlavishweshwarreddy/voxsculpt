@@ -21,6 +21,7 @@ import {
   Vector3,
 } from '@iwsdk/core';
 import { ColorSwatch, VoxelSculptor, FeedbackParticle } from '../voxel-components.js';
+import type { AudioSystem } from './audio-system.js';
 import { PALETTE_COLORS, PALETTE_RING_RADIUS, SWATCH_RADIUS } from '../scene-assets/palette.scene-asset.js';
 
 const TWO_PI = Math.PI * 2;
@@ -40,6 +41,9 @@ export class ColorPaletteSystem extends createSystem({
 
   private _activeIndex = 0;
   private _wasTouching = false;
+
+  /** Injected by src/index.ts */
+  audioSystem: AudioSystem | null = null;
 
   init(): void {
     this._spawnSwatches();
@@ -131,6 +135,7 @@ export class ColorPaletteSystem extends createSystem({
           sculptor!.setValue(VoxelSculptor, 'activeColorG', c.g);
           sculptor!.setValue(VoxelSculptor, 'activeColorB', c.b);
 
+          this.audioSystem?.playColorPick();
           this._spawnColorPickFeedback(obj.position, c.r, c.g, c.b);
         }
       }
