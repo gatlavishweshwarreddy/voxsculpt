@@ -6,6 +6,11 @@
  */
 
 import { defineComponents } from '@iwsdk/core';
-import { Robot } from './robot-component.js';
+import { VoxelBlock, ColorSwatch, VoxelSculptor, FeedbackParticle } from './voxel-components.js';
 
-export default defineComponents([Robot]);
+export default defineComponents([
+  VoxelBlock,
+  ColorSwatch,
+  VoxelSculptor,
+  FeedbackParticle,
+]);

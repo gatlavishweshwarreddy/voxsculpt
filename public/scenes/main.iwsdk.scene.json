@@ -3,101 +3,38 @@
   "units": "meters",
   "components": {
     "com.iwsdk.components.IBLGradient": {
-      "sky": [0.6902, 0.749, 0.7843, 1],
-      "equator": [0.6584, 0.7084, 0.7913, 1],
-      "ground": [0.807, 0.7758, 0.7454, 1],
-      "intensity": 1
+      "sky":     [0.05, 0.06, 0.10, 1],
+      "equator": [0.08, 0.09, 0.14, 1],
+      "ground":  [0.04, 0.04, 0.07, 1],
+      "intensity": 0.6
     }
   },
   "resources": {},
   "nodes": [
     {
-      "id": "plant-sansevieria",
-      "name": "Plant Sansevieria",
+      "id": "voxsculpt-hud",
+      "name": "VoxSculpt HUD",
       "metadata": {
-        "iwsdk.validation": {
-          "allowFloating": true
-        }
+        "iwsdk.validation": { "allowFloating": true }
       },
       "content": {
         "type": "asset",
-        "asset": "plant-sansevieria"
+        "asset": "voxsculpt-hud"
       },
       "transform": {
-        "position": [1.2, 0.2, -1.8],
-        "scale": 2
-      },
-      "components": {
-        "RayInteractable": {},
-        "DistanceGrabbable": {
-          "movementMode": "MoveFromTarget"
-        }
-      }
-    },
-    {
-      "id": "robot",
-      "name": "Robot",
-      "metadata": {
-        "iwsdk.validation": {
-          "allowFloating": true
-        }
-      },
-      "content": {
-        "type": "asset",
-        "asset": "robot"
-      },
-      "transform": {
-        "position": [-1.2, 0.4, -1.8]
-      },
-      "components": {
-        "AudioSource": {
-          "src": "./audio/chime.mp3",
-          "maxInstances": 3,
-          "playbackMode": "fade-restart"
-        },
-        "RayInteractable": {},
-        "Robot": {}
-      }
-    },
-    {
-      "id": "welcome-panel",
-      "name": "Welcome Panel",
-      "content": {
-        "type": "asset",
-        "asset": "welcome-panel"
-      },
-      "transform": {
-        "position": [0, 1.6, -2],
-        "scale": 0.4
+        "position": [0.35, 1.45, -0.55],
+        "rotationDeg": [0, -30, 0],
+        "scale": 0.5
       },
       "components": {
         "RayInteractable": {},
         "ScreenSpace": {
-          "top": "20px",
-          "left": "20px",
-          "width": "25vw",
-          "height": "40%"
+          "top": "16px",
+          "right": "16px",
+          "width": "22vw",
+          "height": "30%"
         }
       }
-    },
-    {
-      "id": "webxr-banner",
-      "name": "WebXR Banner",
-      "metadata": {
-        "iwsdk.validation": {
-          "allowFloating": true
-        }
-      },
-      "content": {
-        "type": "asset",
-        "asset": "webxr-banner"
-      },
-      "transform": {
-        "position": [0, 1, 1.8],
-        "rotationDeg": [0, 180, 0],
-        "scale": [1, -1, 1]
-      },
-      "components": {}
     }
   ]
 }

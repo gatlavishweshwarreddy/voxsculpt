@@ -1,15 +1,16 @@
 /**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * VoxSculpt — PanelSystem
  *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
+ * Manages the voxsculpt-hud UIKitML panel for the non-immersive (2D browser)
+ * view. Shows an "Enter XR" button in flat mode and hides it while immersed.
+ * XR session launch/exit is handled here; sculpting state lives in HUDSystem.
  */
 
 import { createSystem, UIKitMLAsset, VisibilityState } from '@iwsdk/core';
 
 export class PanelSystem extends createSystem({}) {
   init(): void {
-    const panel = this.world.getSceneObject<UIKitMLAsset>('welcome-panel');
+    const panel = this.world.getSceneObject<UIKitMLAsset>('voxsculpt-hud');
     const xrButton = panel?.getElementById('xr-button');
     const exitButton = panel?.getElementById('exit-button');
     if (xrButton == null || exitButton == null) {
