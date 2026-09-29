@@ -151,6 +151,3 @@ VoxSculpt was built for the **Meta VR Start Developer Competition 2026**.
 
 ---
 
-## License
-
-MIT — see [LICENSE](LICENSE).
