@@ -1,9 +1,13 @@
 # VoxSculpt
 
 **Hands-first 3D voxel sculpting in your living room.**  
-Build with your bare hands in mixed reality — no controllers, no tutorials, just pinch and place.
+Build with your bare hands in mixed reality — no controller in your hand, just pinch and place.
 
 🔗 **[Live Demo → gatlavishweshwarreddy.github.io/voxsculpt/](https://gatlavishweshwarreddy.github.io/voxsculpt/)**
+
+> Open the live link in the Meta Quest Browser and tap Enter XR.
+> On desktop, install Meta's Immersive Web Emulator extension,
+> enable it for this page, then click Enter XR.
 
 ---
 
@@ -151,6 +155,3 @@ VoxSculpt was built for the **Meta VR Start Developer Competition 2026**.
 
 ---
 
-## License
-
-MIT — see [LICENSE](LICENSE).
