@@ -23,6 +23,8 @@ import {
 } from '@iwsdk/core';
 import { VoxelBlock, VoxelSculptor, FeedbackParticle } from '../voxel-components.js';
 import type { AudioSystem } from './audio-system.js';
+import type { OnboardingSystem } from './onboarding-system.js';
+import type { SurfaceSystem } from './surface-system.js';
 import {
   gridToWorld,
   gridKey,
@@ -79,6 +81,8 @@ export class HandSculptSystem extends createSystem({
 
   /** Injected by src/index.ts */
   audioSystem: AudioSystem | null = null;
+  onboardingSystem: OnboardingSystem | null = null;
+  surfaceSystem: SurfaceSystem | null = null;
 
   init(): void {
     // Nothing to pre-allocate beyond class properties
@@ -248,6 +252,7 @@ export class HandSculptSystem extends createSystem({
       this._grid.delete(nearestKey);
       n.dispose();
       this.audioSystem?.playDelete();
+      this.onboardingSystem?.notifyDelete();
 
       const total = sculptor.getValue(VoxelSculptor, 'totalVoxels') ?? 0;
       sculptor.setValue(VoxelSculptor, 'totalVoxels', Math.max(0, total - 1));
@@ -269,7 +274,11 @@ export class HandSculptSystem extends createSystem({
     this._handPos.setFromMatrixPosition(handSpace.matrixWorld);
 
     const gx = worldToGrid(this._handPos.x);
-    const gy = worldToGrid(this._handPos.y);
+    // Clamp preview Y so blocks are never placed below the detected surface.
+    const surfaceY = this.surfaceSystem?.surfaceY ?? 0;
+    const rawGy = worldToGrid(this._handPos.y);
+    const surfaceGy = worldToGrid(surfaceY);
+    const gy = Math.max(rawGy, surfaceGy);
     const gz = worldToGrid(this._handPos.z);
 
     entity.setValue(VoxelBlock, 'gridX', gx);
@@ -351,6 +360,39 @@ export class HandSculptSystem extends createSystem({
     }
 
     sculptor.setValue(VoxelSculptor, 'undoDepth', this._undoStack.length);
+  }
+
+  // ── Called by SurfaceSystem ───────────────────────────────────────────────
+
+  /**
+   * Shifts every placed voxel (and their grid keys) by `dy` world-units on Y.
+   * Called when the user repositions the build surface with the both-hands gesture.
+   */
+  shiftGridY(dy: number): void {
+    const dGridY = Math.round(dy / VOXEL_SIZE);
+    if (dGridY === 0) return;
+
+    // Re-key the entire grid map with shifted Y values
+    const entries = Array.from(this._grid.entries());
+    this._grid.clear();
+
+    for (const [, entity] of entries) {
+      const gx = entity.getValue(VoxelBlock, 'gridX') ?? 0;
+      const gy = entity.getValue(VoxelBlock, 'gridY') ?? 0;
+      const gz = entity.getValue(VoxelBlock, 'gridZ') ?? 0;
+      const newGy = gy + dGridY;
+
+      entity.setValue(VoxelBlock, 'gridY', newGy);
+      this._placePos.set(gridToWorld(gx), gridToWorld(newGy), gridToWorld(gz));
+      entity.object3D!.position.copy(this._placePos);
+
+      this._grid.set(gridKey(gx, newGy, gz), entity);
+    }
+
+    // Shift undo records so undo still lands in the right place
+    for (const record of this._undoStack) {
+      record.gy += dGridY;
+    }
   }
 
   // ── Utility ───────────────────────────────────────────────────────────────

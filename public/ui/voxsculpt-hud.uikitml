@@ -79,6 +79,34 @@
     text-align: left;
   }
 
+  .onboard-hint {
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: rgba(40, 20, 80, 0.82);
+    border-color: rgba(160, 100, 255, 0.55);
+    border-width: 0.4;
+    border-radius: 3;
+    padding-top: 2.5;
+    padding-bottom: 2.5;
+    padding-left: 3;
+    padding-right: 3;
+    gap: 1.8;
+  }
+
+  .onboard-text {
+    font-size: 2.5;
+    font-weight: 600;
+    color: rgba(230, 210, 255, 0.96);
+    text-align: left;
+  }
+
+  .onboard-skip {
+    font-size: 1.8;
+    color: rgba(160, 130, 220, 0.7);
+    text-align: left;
+    cursor: pointer;
+  }
+
   .btn-row {
     flex-direction: row;
     align-items: center;
@@ -105,6 +133,12 @@
   <div class="header">
     <span class="title">VoxSculpt</span>
     <span class="subtitle">AR Sculpting</span>
+  </div>
+
+  <!-- Onboarding hint — single element; OnboardingSystem updates text via setProperties -->
+  <div id="hint-box" class="onboard-hint">
+    <span id="hint-text" class="onboard-text">Pinch to place your first block</span>
+    <span id="hint-skip" class="onboard-skip">Skip tutorial</span>
   </div>
 
   <div class="divider"></div>

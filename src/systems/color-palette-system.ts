@@ -4,8 +4,17 @@
  * Manages the floating color-palette ring near the left wrist:
  *   • Spawns 8 swatch entities in a ring above the left wrist on init
  *   • Each frame, repositions the ring to follow the left wrist
- *   • When the right-hand ray tip enters a swatch, active color updates
+ *   • When the right-hand ray tip enters a swatch (while NOT pinching),
+ *     the active color updates
  *   • Active swatch pulses with higher emissive intensity
+ *
+ * Touch guards:
+ *   - Ignored while the right hand is pinching (same pinch + gamepad fallback
+ *     as HandSculptSystem), so placing a block cannot also pick a colour.
+ *   - Ignored for the first XR_WARMUP_SEC after XR starts, giving the swatch
+ *     ring time to move from its spawn position to the real wrist.
+ *   - Per-swatch re-entry guard: the hand must leave a swatch before the same
+ *     swatch can fire again.
  *
  * ECS rules: allocate in init(), never in update().
  * Query entities are Set<Entity>.
@@ -19,6 +28,7 @@ import {
   MeshStandardMaterial,
   Object3D,
   Vector3,
+  VisibilityState,
 } from '@iwsdk/core';
 import { ColorSwatch, VoxelSculptor, FeedbackParticle } from '../voxel-components.js';
 import type { AudioSystem } from './audio-system.js';
@@ -27,6 +37,10 @@ import { PALETTE_COLORS, PALETTE_RING_RADIUS, SWATCH_RADIUS } from '../scene-ass
 const TWO_PI = Math.PI * 2;
 /** Distance in meters within which ray-tip touch activates a swatch. */
 const TOUCH_DIST = SWATCH_RADIUS + 0.018;
+/** Pinch threshold — must match HandSculptSystem. */
+const PINCH_COMMIT = 0.85;
+/** Seconds after XR starts before swatch touches are accepted. */
+const XR_WARMUP_SEC = 1.5;
 
 export class ColorPaletteSystem extends createSystem({
   sculptor: { required: [VoxelSculptor] },
@@ -40,16 +54,37 @@ export class ColorPaletteSystem extends createSystem({
   private _ringOffsetY = 0.10;
 
   private _activeIndex = 0;
-  private _wasTouching = false;
+  /**
+   * Index of the swatch currently being touched (-1 = none).
+   * The hand must leave (dist >= TOUCH_DIST) before the same swatch fires again.
+   */
+  private _touchedIndex = -1;
+  /** Seconds elapsed since XR became active. Touches blocked until >= XR_WARMUP_SEC. */
+  private _xrActiveTimer = 0;
+  /** Whether XR is currently active (set via visibilityState subscription). */
+  private _inXR = false;
 
   /** Injected by src/index.ts */
   audioSystem: AudioSystem | null = null;
 
   init(): void {
     this._spawnSwatches();
+    // Track XR active state and reset the warmup timer on every XR entry.
+    this.cleanupFuncs.push(
+      this.world.visibilityState.subscribe((state) => {
+        this._inXR = state !== VisibilityState.NonImmersive;
+        if (this._inXR) {
+          this._xrActiveTimer = 0;
+          this._touchedIndex = -1;
+        }
+      }),
+    );
   }
 
-  update(_delta: number): void {
+  update(delta: number): void {
+    if (this._inXR) {
+      this._xrActiveTimer += delta;
+    }
     this._followWrist();
     this._checkFingerTouch();
   }
@@ -107,6 +142,16 @@ export class ColorPaletteSystem extends createSystem({
   // ── Touch detection ───────────────────────────────────────────────────────
 
   private _checkFingerTouch(): void {
+    // Guard 1: warmup — swatch ring may still be at its spawn position.
+    if (this._xrActiveTimer < XR_WARMUP_SEC) return;
+
+    // Guard 2: right hand is pinching — Trig press must not pick a colour.
+    const hands = this.world.input.xr?.visualAdapters?.hand;
+    const gpRight = this.world.input.xr?.gamepads?.['right'];
+    const rawPinch = hands?.right?.getPinchStrength?.() ?? 0;
+    const pinchStrength = rawPinch > 0 ? rawPinch : ((gpRight?.getSelecting() ?? false) ? 1.0 : 0.0);
+    if (pinchStrength >= PINCH_COMMIT) return;
+
     let sculptor: Entity | null = null;
     for (const e of this.queries.sculptor.entities) { sculptor = e; break; }
     if (sculptor == null) return;
@@ -118,16 +163,19 @@ export class ColorPaletteSystem extends createSystem({
     rightRay.updateWorldMatrix(true, false);
     this._fingerPos.setFromMatrixPosition(rightRay.matrixWorld);
 
-    let touched = false;
+    let currentlyTouchedIndex = -1;
     this.queries.swatches.entities.forEach((entity) => {
-      if (touched) return;
+      if (currentlyTouchedIndex !== -1) return; // already found one this frame
       const obj = entity.object3D!;
       this._swatchPos.copy(obj.position);
       const dist = this._fingerPos.distanceTo(this._swatchPos);
       if (dist < TOUCH_DIST) {
-        touched = true;
-        if (!this._wasTouching) {
-          const idx = entity.getValue(ColorSwatch, 'index') ?? 0;
+        const idx = entity.getValue(ColorSwatch, 'index') ?? 0;
+        currentlyTouchedIndex = idx;
+
+        // Guard 3: require the hand to have left this swatch before re-firing.
+        if (idx !== this._touchedIndex) {
+          this._touchedIndex = idx;
           this._setActiveIndex(idx);
 
           const c = PALETTE_COLORS[idx]!;
@@ -141,7 +189,10 @@ export class ColorPaletteSystem extends createSystem({
       }
     });
 
-    this._wasTouching = touched;
+    // Clear the lock when the hand is no longer inside any swatch.
+    if (currentlyTouchedIndex === -1) {
+      this._touchedIndex = -1;
+    }
   }
 
   // ── Visual state ──────────────────────────────────────────────────────────
