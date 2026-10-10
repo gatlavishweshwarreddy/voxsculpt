@@ -13,7 +13,7 @@ Build with your bare hands in mixed reality — no controller in your hand, just
 
 ## What it is
 
-VoxSculpt is a WebXR mixed-reality experience for **Meta Quest** that turns your physical room into a 3D sculpting studio. Floating voxel blocks snap to an invisible 8 cm grid in the space around you. Reach out, pinch a color from the wrist palette, and start building — no menu, no onboarding, no controller in your hand.
+VoxSculpt is a WebXR mixed-reality experience for **Meta Quest** that turns your physical room into a 3D sculpting studio. Floating voxel blocks snap to an invisible 8 cm grid in the space around you. Reach out, pinch a color from the wrist palette, and start building — "short first-run hints, no controller in your hand".
 
 Designed for the **Meta VR Start Developer Competition 2026**.
 
@@ -41,8 +41,10 @@ When you enter XR, VoxSculpt overlays a passthrough view of your real room with 
 | **Choose color** | Move right index tip into a wrist swatch | Active color changes, swatch glows brighter |
 | **Delete voxel** | Pinch near a voxel and release with a fast flick (>1 m/s) | Nearest voxel within 32 cm is removed |
 | **Undo** | Pinch both hands at once, hold ≥150 ms, release both | Last place or delete is reversed |
+| **Set surface**(untested on a real headset) | Pinch with both hands at once and hold for 1 second | Sets the building height to your desk |
 | **Export** | Ray-click "Export .gltf" on the HUD panel | `.gltf` file downloads to your device |
 | **Clear all** | Ray-click "Clear" on the HUD panel | All voxels removed |
+
 
 > **No controller fallback by design.** Hands-first is mandatory for the competition.
 
