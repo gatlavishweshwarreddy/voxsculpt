@@ -10,7 +10,10 @@ Build with your bare hands in mixed reality — no controller in your hand, just
 > enable it for this page, then click Enter XR.
 
 ---
-
+## 📺 Watch Demo
+[▶ Watch full demo on YouTube]
+https://youtu.be/LHX1t_OHXJ0
+---
 ## What it is
 
 VoxSculpt is a WebXR mixed-reality experience for **Meta Quest** that turns your physical room into a 3D sculpting studio. Floating voxel blocks snap to an invisible 8 cm grid in the space around you. Reach out, pinch a color from the wrist palette, and start building — "short first-run hints, no controller in your hand".
