@@ -12,7 +12,8 @@ Build with your bare hands in mixed reality — no controller in your hand, just
 ---
 
 ## 📺 Watch Demo
-<img width="1376" height="768" alt="VOXSCULPT 14" src="https://github.com/user-attachments/assets/3793a549-f20b-4892-be59-778854f4f1e2" />
+<img width="1376" height="768" alt="VOXSCULPT 6" src="https://github.com/user-attachments/assets/5ae45998-c180-4e44-b0c3-c1b5600ba06d" />
+
 
 [▶ Watch full demo on YouTube]
 https://youtu.be/LHX1t_OHXJ0
